@@ -17,8 +17,48 @@
  *  ]
  */
 function createCompassPoints() {
-    throw new Error('Not implemented');
-    var sides = ['N','E','S','W'];  // use array of cardinal directions only!
+    //throw new Error('Not implemented');
+    var sides = ['N', 'E', 'S', 'W'];  // use array of cardinal directions only!
+
+    let result = new Array();
+    let curSide, nextSide, midSide, abbreviation;
+    for (let side = 0; side < sides.length; side++) {
+        curSide = sides[side];
+        nextSide = sides[(side + 1) % sides.length];
+        midSide = (side % 2 == 0) ? curSide + nextSide : nextSide + curSide;
+        for (let compassPoint = 0; compassPoint < 8; compassPoint++) {
+            switch (compassPoint) {
+                case 0:
+                    abbreviation = curSide;
+                    break;
+                case 1:
+                    abbreviation = curSide + 'b' + nextSide;
+                    break;
+                case 2:
+                    abbreviation = curSide + midSide;
+                    break;
+                case 3:
+                    abbreviation = midSide + 'b' + curSide;
+                    break;
+                case 4:
+                    abbreviation = midSide;
+                    break;
+                case 5:
+                    abbreviation = midSide + 'b' + nextSide;
+                    break;
+                case 6:
+                    abbreviation = nextSide + midSide;
+                    break;
+                case 7:
+                    abbreviation = nextSide + 'b' + curSide;
+                    break;
+                default:
+                    break;
+            }
+            result.push({ abbreviation: abbreviation, azimuth: (side * 8 + compassPoint) * 11.25 });
+        }
+    }
+    return result;
 }
 
 
@@ -56,7 +96,23 @@ function createCompassPoints() {
  *   'nothing to do' => 'nothing to do'
  */
 function* expandBraces(str) {
-    throw new Error('Not implemented');
+    let toExpand = [str];
+    let appeared = new Array();
+    let matched, replacementArr;
+    while (toExpand.length > 0) {
+        str = toExpand.pop();
+        matched = str.match(/{([^{}]*)}/);
+        if (matched != null) {
+            replacementArr = matched[1].split(',');
+            for (let replacement of replacementArr) {
+                toExpand.push(str.replace(matched[0], replacement));
+            }
+        } else if (!appeared.includes(str)) {
+            appeared.push(str);
+            yield str;
+        }
+    }
+    //throw new Error('Not implemented');
 }
 
 
@@ -89,7 +145,33 @@ function* expandBraces(str) {
  *
  */
 function getZigZagMatrix(n) {
-    throw new Error('Not implemented');
+    let arr = [];
+    for (let i = 0; i < n; i++)
+        arr[i] = [];
+
+    let i = 1, j = 1;
+    for (let k = 0; k < n * n; k++) {
+        arr[i - 1][j - 1] = k;
+        if ((i + j) % 2 == 0) {
+            // чётные диагонали
+            if (j < n)
+                j++;
+            else
+                i += 2;
+            if (i > 1)
+                i--;
+        } else {
+            // нечётные диагонали
+            if (i < n)
+                i++;
+            else
+                j += 2;
+            if (j > 1)
+                j--;
+        }
+    }
+    return arr;
+    //throw new Error('Not implemented');
 }
 
 
@@ -114,7 +196,46 @@ function getZigZagMatrix(n) {
  *
  */
 function canDominoesMakeRow(dominoes) {
-    throw new Error('Not implemented');
+    for (let i = 0; i < (dominoes.length - 1); i++) {
+        if (dominoes[i][1] != dominoes[i + 1][0]) {
+
+            //swap domino
+            let temp = dominoes[i + 1][0];
+            dominoes[i + 1][0] = dominoes[i + 1][1];
+            dominoes[i + 1][1] = temp;
+
+            if (dominoes[i][1] != dominoes[i + 1][0]) {
+
+                //change domino
+                var isFound = false
+                for (let j = i + 2; ((j < dominoes.length) && (!isFound)); j++) {
+                    if (dominoes[i][1] == dominoes[j][0]) {
+                        isFound = true;
+                        let tempDomino = dominoes[j];
+                        dominoes[j] = dominoes[i + 1];
+                        dominoes[i + 1] = tempDomino;
+                    }
+                    else if (dominoes[i][1] == dominoes[j][1]) {
+                        isFound = true;
+
+                        //swap temp domino
+                        let tempNumb = dominoes[j][1];
+                        dominoes[j][1] = dominoes[j][0];
+                        dominoes[j][0] = tempNumb;
+
+                        let tempDomino = dominoes[j];
+                        dominoes[j] = dominoes[i + 1];
+                        dominoes[i + 1] = tempDomino;
+                    }
+                }
+                if (!isFound) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+    //throw new Error('Not implemented');
 }
 
 
@@ -138,7 +259,29 @@ function canDominoesMakeRow(dominoes) {
  * [ 1, 2, 4, 5]          => '1,2,4,5'
  */
 function extractRanges(nums) {
-    throw new Error('Not implemented');
+    let min, max;
+    let rez = Array();
+    while (nums.length > 0) {
+        min = nums.shift();
+        max = min;
+        while ((nums.length > 0) && (nums[0] - max == 1)) {
+            max = nums.shift();
+        }
+        switch (max - min) {
+            case 0:
+                rez.push(min.toString());
+                break
+            case 1:
+                rez.push(min.toString());
+                rez.push(max.toString());
+                break;
+            default:
+                rez.push(min + '-' + max);
+                break;
+        }
+    }
+    return rez.toString();
+    //throw new Error('Not implemented');
 }
 
 module.exports = {
